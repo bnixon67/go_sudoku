@@ -26,8 +26,8 @@ This project is licensed under the GNU General Public License v3.0
 
 ## Acknowledgments
 
-* Mitchell Johnson [Solving Sudoku in C with Recursive
-Backtracking](https://spin.atomicobject.com/2012/06/18/solving-sudoku-in-c-with-recursive-backtracking/)
+* Mitchell Johnson [Solving Sudoku in C with Recursive Backtracking]
+(https://spin.atomicobject.com/2012/06/18/solving-sudoku-in-c-with-recursive-backtracking/)
 
-* Miguel Kano [Sudoku Solver with recursive
-method](http://www.migapro.com/sudoku-solver-recursive-method/)
+* Miguel Kano [Sudoku Solver with recursive method]
+(http://www.migapro.com/sudoku-solver-recursive-method/)
