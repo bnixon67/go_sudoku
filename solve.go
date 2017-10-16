@@ -130,12 +130,15 @@ func main() {
 		}
 	}
 
-	fmt.Println("*** INPUT ***")
+	fmt.Println("Puzzle to solve:")
 	print_puzzle(puzzle)
+	fmt.Println()
 
 	if solve(&puzzle, 0, 0) {
-		fmt.Println("*** SOLVED ***")
+		fmt.Println("Puzzle solved:")
 		print_puzzle(puzzle)
+	} else {
+		fmt.Println("Cannot solve this puzzle")
 	}
 
 }
