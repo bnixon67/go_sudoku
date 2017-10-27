@@ -21,6 +21,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func isValid(num byte, puzzle [9][9]byte, row byte, col byte) bool {
@@ -109,11 +110,19 @@ func main() {
 
 	var puzzle [9][9]byte
 
-	fmt.Println("File is", os.Args[1])
-	file, err := os.Open(os.Args[1])
+	if len(os.Args) != 2 {
+		_, file := filepath.Split(os.Args[0])
+		fmt.Println("usage: ", file, "filename")
+		os.Exit(1)
+	}
+
+	filename := os.Args[1]
+	fmt.Println("File is", filename)
+	file, err := os.Open(filename)
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
 	reader := bufio.NewReader(file)
 	//reader := bufio.NewReader(os.Stdin)
