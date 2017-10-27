@@ -109,15 +109,14 @@ func main() {
 
 	var puzzle [9][9]byte
 
-	/*
-		file, err := os.Open("puzzle.txt")
-		if err != nil {
-			panic(err)
-		}
+	fmt.Println("File is", os.Args[1])
+	file, err := os.Open(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
 
-		reader := bufio.NewReader(file)
-	*/
-	reader := bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(file)
+	//reader := bufio.NewReader(os.Stdin)
 
 	for row := 0; row < 9; row++ {
 		line, err := reader.ReadString('\n')
