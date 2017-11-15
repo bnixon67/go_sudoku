@@ -19,22 +19,50 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 )
 
-func isValid(num byte, puzzle [9][9]byte, row byte, col byte) bool {
+type Puzzle struct {
+	values [9][9]byte
+}
+
+// Stringer interafce for Puzzle type
+func (puzzle Puzzle) String() string {
+
+	var buffer bytes.Buffer
+
+	for row := 0; row < 9; row++ {
+		if row%3 == 0 {
+			buffer.WriteString("+---+---+---+\n")
+		}
+		for col := 0; col < 9; col++ {
+			if col%3 == 0 {
+				buffer.WriteString("|")
+			}
+			buffer.WriteString(fmt.Sprint(puzzle.values[row][col]))
+		}
+		buffer.WriteString("|\n")
+	}
+	buffer.WriteString("+---+---+---+")
+
+	return buffer.String()
+}
+
+func isValid(num byte, puzzle Puzzle, row byte, col byte) bool {
 
 	// check if num already exists in row or column
 	for i := byte(0); i < 9; i++ {
 		// does num already exist in row?
-		if puzzle[row][i] == num {
+		if puzzle.values[row][i] == num {
 			return false
 		}
 
 		// does num already exist in column?
-		if puzzle[i][col] == num {
+		if puzzle.values[i][col] == num {
 			return false
 		}
 	}
@@ -46,7 +74,7 @@ func isValid(num byte, puzzle [9][9]byte, row byte, col byte) bool {
 	for i := topRow; i < topRow+3; i++ {
 		for j := topCol; j < topCol+3; j++ {
 			if !(i == row && j == col) {
-				if puzzle[i][j] == num {
+				if puzzle.values[i][j] == num {
 					return false
 				}
 			}
@@ -56,7 +84,7 @@ func isValid(num byte, puzzle [9][9]byte, row byte, col byte) bool {
 	return true
 }
 
-func solve(puzzle *[9][9]byte, row byte, col byte) bool {
+func solve(puzzle *Puzzle, row byte, col byte) bool {
 
 	// past last row?
 	if row == 9 {
@@ -64,7 +92,7 @@ func solve(puzzle *[9][9]byte, row byte, col byte) bool {
 	}
 
 	// puzzle cell already has a value, move to next cell
-	if puzzle[row][col] != 0 {
+	if puzzle.values[row][col] != 0 {
 		if col == 8 {
 			if solve(puzzle, row+1, 0) {
 				return true
@@ -77,7 +105,7 @@ func solve(puzzle *[9][9]byte, row byte, col byte) bool {
 	} else {
 		for num := byte(1); num < 10; num++ {
 			if isValid(num, *puzzle, row, col) {
-				puzzle[row][col] = num
+				puzzle.values[row][col] = num
 				if col == 8 {
 					if solve(puzzle, row+1, 0) {
 						return true
@@ -87,7 +115,7 @@ func solve(puzzle *[9][9]byte, row byte, col byte) bool {
 						return true
 					}
 				}
-				puzzle[row][col] = 0
+				puzzle.values[row][col] = 0
 			}
 		}
 	}
@@ -95,37 +123,42 @@ func solve(puzzle *[9][9]byte, row byte, col byte) bool {
 	return false
 }
 
-func print_puzzle(puzzle [9][9]byte) {
-
-	for row := 0; row < 9; row++ {
-		for col := 0; col < 9; col++ {
-			fmt.Print(puzzle[row][col])
-		}
-		fmt.Println()
-	}
-
-}
-
 func main() {
 
-	var puzzle [9][9]byte
+	var puzzle Puzzle
 
-	if len(os.Args) != 2 {
-		_, file := filepath.Split(os.Args[0])
-		fmt.Println("usage: ", file, "filename")
+	var file *os.File
+	var err error
+
+	help := flag.Bool("h", false, "help")
+	flag.Parse()
+
+	if *help {
+		_, exec := filepath.Split(os.Args[0])
+		fmt.Println("usage: ", exec, "filename")
 		os.Exit(1)
 	}
 
-	filename := os.Args[1]
-	fmt.Println("File is", filename)
-	file, err := os.Open(filename)
-	if err != nil {
-		panic(err)
+	switch len(flag.Args()) {
+
+	case 0:
+		file = os.Stdin
+
+	case 1:
+		filename := flag.Arg(0)
+		file, err = os.Open(filename)
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+
+	default:
+		_, exec := filepath.Split(os.Args[0])
+		fmt.Println("usage: ", exec, "filename")
+		os.Exit(1)
 	}
-	defer file.Close()
 
 	reader := bufio.NewReader(file)
-	//reader := bufio.NewReader(os.Stdin)
 
 	for row := 0; row < 9; row++ {
 		line, err := reader.ReadString('\n')
@@ -134,17 +167,17 @@ func main() {
 		}
 
 		for col, rune := range line[:9] {
-			puzzle[row][col] = byte(rune - '0')
+			puzzle.values[row][col] = byte(rune - '0')
 		}
 	}
 
 	fmt.Println("Puzzle to solve:")
-	print_puzzle(puzzle)
+	fmt.Println(puzzle)
 	fmt.Println()
 
 	if solve(&puzzle, 0, 0) {
 		fmt.Println("Puzzle solved:")
-		print_puzzle(puzzle)
+		fmt.Println(puzzle)
 	} else {
 		fmt.Println("Cannot solve this puzzle")
 	}
